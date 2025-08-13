@@ -1,4 +1,8 @@
 export const handleSequelizeError = (error) => {
+  if (error.statusCode) {
+    return { status: error.statusCode, message: error.message };
+  }
+
   if (error.name === "SequelizeValidationError") {
     return {
       status: 400,
@@ -11,7 +15,18 @@ export const handleSequelizeError = (error) => {
   }
 
   if (error.name === "SequelizeUniqueConstraintError") {
-    return { status: 400, message: "Username or email already exists" };
+    const field = error.errors[0]?.path;
+    let message = "The field 'field' already exists";
+
+    if (field) {
+      message = message.replace("field", field);
+    }
+
+    return {
+      status: 400,
+      message,
+      field,
+    };
   }
 
   return { status: 500, message: "Server error" };

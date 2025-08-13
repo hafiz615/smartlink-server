@@ -12,18 +12,7 @@ export const registerUser = async ({
   password,
   role = "user",
 }) => {
-  const existingUser = await User.findOne({
-    where: { [Op.or]: [{ email }, { username }] },
-  });
-
-  if (existingUser) {
-    throw new Error(
-      existingUser.email === email
-        ? "Email already exists"
-        : "Username already exists"
-    );
-  }
-
+  // Remove the manual checks - let Sequelize unique constraints handle it
   const newUser = await User.create({ username, email, password, role });
   const token = generateToken(newUser.id);
 
